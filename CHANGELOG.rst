@@ -15,6 +15,10 @@ Unreleased
 ----------
 
 =========================
+[4.2.5] - 2022-04-18
+---------------------
+  * Replace EdxRestApiClient with OAuthAPIClient.
+
 [4.2.4] - 2022-04-18
 ---------------------
   * Make API endpoints readonly.
