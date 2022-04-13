@@ -15,6 +15,10 @@ Unreleased
 ----------
 
 =========================
+[4.2.6] - 2022-05-06
+---------------------
+  * Replace EdxRestApiClient with OAuthAPIClient.
+
 [4.2.5] - 2022-04-22
 ---------------------
   * Rename base class to a more appropriate name
