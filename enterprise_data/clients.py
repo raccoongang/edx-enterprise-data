@@ -26,6 +26,7 @@ class EnterpriseApiClient(OAuthAPIClient):
     This class is a sub-class of the edX Rest API Client
     (https://github.com/edx/edx-rest-api-client).
     """
+
     API_BASE_URL = urljoin(settings.LMS_BASE_URL + '/', 'enterprise/api/v1/')
 
     def get_enterprise_learner(self, user):

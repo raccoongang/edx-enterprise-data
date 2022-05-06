@@ -41,7 +41,7 @@ class TestEnterpriseApiClient(TestCase):
             settings.BACKEND_SERVICE_EDX_OAUTH2_PROVIDER_URL,
             settings.BACKEND_SERVICE_EDX_OAUTH2_KEY,
             settings.BACKEND_SERVICE_EDX_OAUTH2_SECRET,
-        )  # pylint: disable=attribute-defined-outside-init
+        )  # lint-amnesty, pylint: disable=attribute-defined-outside-init
 
         responses.add(
             responses.POST,
