@@ -25,7 +25,6 @@ class EnterpriseCatalogAPIClient(EdxOAuth2APIClient):
     GET_CONTENT_METADATA_ENDPOINT = ENTERPRISE_CATALOGS_ENDPOINT + '/{}/get_content_metadata'
 
     ENTERPRISE_REPORTING_ENDPOINT = 'enterprise_customer_reporting'
-    ENTERPRISE_CUSTOMER_CATALOGS_ENDPOINT = 'enterprise_catalogs'
 
     PAGE_SIZE = os.getenv('PAGE_SIZE', default=1000)
 
@@ -119,6 +118,18 @@ class EnterpriseCatalogAPIClient(EdxOAuth2APIClient):
         # We only made this a dictionary to help filter out duplicates by a common key. We just want values now.
         return list(content_metadata.values())
 
+    @EdxOAuth2APIClient.refresh_token
+    def get_customer_catalogs(self, enterprise_customer_uuid):
+        """Return all catalog uuids owned by an Enterprise Customer."""
+        return self._load_data(
+            self.ENTERPRISE_CATALOGS_ENDPOINT,
+            should_traverse_pagination=True,
+            querystring={
+                'enterprise_customer': enterprise_customer_uuid,
+                'page_size': self.PAGE_SIZE,
+            },
+        )
+
 
 class EnterpriseAPIClient(EdxOAuth2APIClient):
     """
@@ -129,7 +140,6 @@ class EnterpriseAPIClient(EdxOAuth2APIClient):
     APPEND_SLASH = True
 
     ENTERPRISE_REPORTING_ENDPOINT = 'enterprise_customer_reporting'
-    ENTERPRISE_CUSTOMER_CATALOGS_ENDPOINT = 'enterprise_catalogs'
 
     PAGE_SIZE = os.getenv('PAGE_SIZE', default=1000)
 
@@ -154,49 +164,6 @@ class EnterpriseAPIClient(EdxOAuth2APIClient):
             querystring={'enterprise_customer': enterprise_customer_uuid},
             should_traverse_pagination=True,
             **kwargs
-        )
-
-    @EdxOAuth2APIClient.refresh_token
-    def get_content_metadata(self, enterprise_customer_uuid, reporting_config):
-        """Return all content metadata contained in the catalogs associated with an Enterprise Customer."""
-        content_metadata = OrderedDict()
-
-        enterprise_customer_catalogs = utils.extract_catalog_uuids_from_reporting_config(reporting_config)
-        if not enterprise_customer_catalogs.get('results'):
-            enterprise_customer_catalogs = self._load_data(
-                self.ENTERPRISE_CUSTOMER_CATALOGS_ENDPOINT,
-                should_traverse_pagination=True,
-                querystring={
-                    'enterprise_customer': enterprise_customer_uuid,
-                    'page_size': self.PAGE_SIZE,
-                },
-            )
-        for catalog in enterprise_customer_catalogs.get('results', []):
-            catalog_content = self._load_data(
-                self.ENTERPRISE_CUSTOMER_CATALOGS_ENDPOINT,
-                resource_id=catalog['uuid'],
-                should_traverse_pagination=True,
-                querystring={'page_size': self.PAGE_SIZE},
-            )
-            # It's possible that there are duplicate items.
-            # Filter them out by assigning common items to their common identifier in a dictionary.
-            for item in catalog_content['results']:
-                key = 'uuid' if item['content_type'] == 'program' else 'key'
-                content_metadata[item[key]] = item
-
-        # We only made this a dictionary to help filter out duplicates by a common key. We just want values now.
-        return list(content_metadata.values())
-
-    @EdxOAuth2APIClient.refresh_token
-    def get_customer_catalogs(self, enterprise_customer_uuid):
-        """Return all catalog uuids owned by an Enterprise Customer."""
-        return self._load_data(
-            self.ENTERPRISE_CUSTOMER_CATALOGS_ENDPOINT,
-            should_traverse_pagination=True,
-            querystring={
-                'enterprise_customer': enterprise_customer_uuid,
-                'page_size': self.PAGE_SIZE,
-            },
         )
 
 
